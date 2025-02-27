@@ -17,10 +17,12 @@ class AuthServices {
       accessToken: googleAuth.accessToken,
       idToken: googleAuth.idToken,
     );
-    UserCredential userCredential = await _auth.signInWithCredential(credential);
+    UserCredential userCredential =
+        await _auth.signInWithCredential(credential);
     return userCredential.user;
   }
-  Future<void> signOut () async{
+
+  Future<void> signOut() async {
     await _googleSignIn.signOut();
     await _auth.signOut();
   }
