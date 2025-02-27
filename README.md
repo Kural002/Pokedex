@@ -4,13 +4,20 @@ A new Flutter project.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+✨ Features
+✔️ Firebase Authentication (Google Sign-In)
+✔️ Pokémon Listing with images and names
+✔️ Infinite Scroll with pagination
+✔️ Search Pokémon
+✔️ Pull-to-Refresh & Lazy Loading
+✔️ State Management using Provider
+✔️ Responsive UI
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+🛠️ Tech Stack
+Flutter & Dart
+Firebase Authentication (Google Sign-In)
+Firebase Firestore
+PokéAPI (https://pokeapi.co/)
+Provider (State Management)
+Dio (HTTP Requests)
+Smart Refresher (Pull-to-Refresh)
