@@ -5,7 +5,8 @@ class PokemonProvider extends ChangeNotifier {
   List<Map<String, dynamic>> _pokemonList = [];
   int _offset = 0;
   bool _isLoading = false;
-
+  String get baseUrl =>
+      'https://pokeapi.co/api/v2/pokemon?offset=$_offset&limit=20';
   List<Map<String, dynamic>> get pokemonList => _pokemonList;
   bool get isLoading => _isLoading;
 
@@ -19,11 +20,14 @@ class PokemonProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await Dio().get('https://pokeapi.co/api/v2/pokemon?offset=$_offset&limit=20');
+      final response = await Dio().get(baseUrl);
+      if (response.statusCode != 200) {
+        throw Exception('Failed to load Pokémon');
+      }
       final newPokemon = (response.data['results'] as List).map((pokemon) {
         return {
           'name': pokemon['name'],
-          'url': pokemon['url'], 
+          'url': pokemon['url'],
         };
       }).toList();
 

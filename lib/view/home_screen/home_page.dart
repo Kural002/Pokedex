@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/home_screen/components/pokemon_card.dart';
-import 'package:pokedex/login_screen/login_page.dart';
+import 'package:pokedex/view/home_screen/components/pokemon_card.dart';
+import 'package:pokedex/view/login_screen/login_page.dart';
 import 'package:pokedex/provider/pokemon_provider.dart';
 import 'package:pokedex/services/auth_services.dart';
 import 'package:provider/provider.dart';
@@ -76,7 +76,6 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
-          // Search Bar
           Padding(
             padding: EdgeInsets.all(10),
             child: GestureDetector(
