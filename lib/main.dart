@@ -12,6 +12,7 @@ void main() async {
       create: (context) => PokemonProvider(),
       child: MyApp(),
     ),
+    
   );
 }
 

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/view/home_screen/components/pokemon_card.dart';
+import 'package:pokedex/widget/pokemon_card.dart';
 import 'package:pokedex/view/login_screen/login_page.dart';
 import 'package:pokedex/provider/pokemon_provider.dart';
 import 'package:pokedex/services/auth_services.dart';
@@ -130,6 +130,7 @@ class _HomePageState extends State<HomePage> {
 
                         return PokemonCard(
                           name: pokemon['name'],
+                          index: id,
                           imageUrl:
                               "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/$id.png",
                         );
