@@ -23,10 +23,30 @@ class FavoritesScreen extends StatelessWidget {
                 final pokemon = favorites[index];
 
                 return ListTile(
-                  leading: Image.network(
-                    pokemon['imageUrl'],
-                    height: 50,
-                    width: 50,
+                  leading: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.network(
+                      pokemon['imageUrl'],
+                      height: 50,
+                      width: 50,
+                      fit: BoxFit.cover,
+                      loadingBuilder: (context, child, loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return const SizedBox(
+                          height: 50,
+                          width: 50,
+                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        );
+                      },
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 50,
+                          width: 50,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                        );
+                      },
+                    ),
                   ),
                   title: Text(pokemon['name'].toString().toUpperCase()),
                   trailing: IconButton(
@@ -36,6 +56,7 @@ class FavoritesScreen extends StatelessWidget {
                         pokemon['id'],
                         pokemon['name'],
                         pokemon['imageUrl'],
+                        
                       );
                     },
                   ),

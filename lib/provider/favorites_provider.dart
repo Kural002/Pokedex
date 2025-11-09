@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Query;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 
 class FavoritesProvider with ChangeNotifier {
@@ -7,15 +8,31 @@ class FavoritesProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   List<Map<String, dynamic>> _favorites = [];
+  bool _isLoading = false;
 
   List<Map<String, dynamic>> get favorites => _favorites;
+  bool get isLoading => _isLoading;
 
-  /// Load favorites from Firestore
   Future<void> loadFavorites() async {
-    final user = _auth.currentUser;
-    if (user == null) return;
-
     try {
+      final user = _auth.currentUser;
+
+      if (user == null) {
+        debugPrint('loadFavorites: No user logged in');
+        _favorites = [];
+        notifyListeners();
+        return;
+      }
+
+      if (Firebase.apps.isEmpty) {
+        debugPrint('loadFavorites: Firebase not initialized yet');
+        return;
+      }
+
+      if (kIsWeb) {
+        await FirebaseFirestore.instance.waitForPendingWrites();
+      }
+
       final snapshot = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -23,50 +40,56 @@ class FavoritesProvider with ChangeNotifier {
           .get();
 
       _favorites = snapshot.docs.map((doc) {
+        final data = doc.data();
         return {
           'id': doc.id,
-          'name': doc['name'],
-          'imageUrl': doc['imageUrl'],
+          'name': data['name'] ?? '',
+          'imageUrl': data['imageUrl'] ?? '',
         };
       }).toList();
 
       notifyListeners();
     } catch (e) {
-      debugPrint('Failed to load favorites: $e');
+      debugPrint('🔥 Firestore load error: $e');
     }
   }
 
-  /// Toggle favorite (add or remove)
   Future<void> toggleFavorite(String id, String name, String imageUrl) async {
-    final user = _auth.currentUser;
-    if (user == null) return;
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        debugPrint('Cannot toggle favorite: User not logged in');
+        return;
+      }
 
-    final docRef = _firestore
-        .collection('users')
-        .doc(user.uid)
-        .collection('favorites')
-        .doc(id);
+      final docRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('favorites')
+          .doc(id);
 
-    final docSnapshot = await docRef.get();
+      final isCurrentlyFavorite = _favorites.any((item) => item['id'] == id);
+      final previousFavorites = List<Map<String, dynamic>>.from(_favorites);
 
-    if (docSnapshot.exists) {
-      // Remove from Firestore
-      await docRef.delete();
-      _favorites.removeWhere((item) => item['id'] == id);
-    } else {
-      // Add to Firestore
-      await docRef.set({
-        'name': name,
-        'imageUrl': imageUrl,
-      });
-      _favorites.add({'id': id, 'name': name, 'imageUrl': imageUrl});
+      if (isCurrentlyFavorite) {
+        _favorites.removeWhere((item) => item['id'] == id);
+        notifyListeners();
+        await docRef.delete();
+      } else {
+        _favorites.add({'id': id, 'name': name, 'imageUrl': imageUrl});
+        notifyListeners();
+        await docRef.set({
+          'name': name,
+          'imageUrl': imageUrl,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+      }
+    } catch (e) {
+      debugPrint('🔥 Error toggling favorite: $e');
+      await loadFavorites();
     }
-
-    notifyListeners();
   }
 
-  /// Check if a Pokémon is a favorite
-  bool isFavorite(String id) {
-    return _favorites.any((pokemon) => pokemon['id'] == id);
-  }
+  bool isFavorite(String id) =>
+      _favorites.any((pokemon) => pokemon['id'] == id);
 }
